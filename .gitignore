@@ -1,3 +1,9 @@
 #Build results and temporary files
 /exec/
 
+*.bo
+*.so
+*.h
+*.o
+*.cxx
+*.ba
