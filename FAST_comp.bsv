@@ -5,10 +5,18 @@ import ClientServer ::*;
 import Vector ::*;
 import GetPut ::*;
 
-typedef Bit#(8) GrayScale;
+typedef 8 N;
+typedef Bit#(N) GrayScale;
+typedef 0 THRESHOLD;
 
 
-module mkComparator#(parameter Integer size) (Server#(Tuple2#(GrayScale, Vector#(size, GrayScale)), Bool));
+interface FAST_comp#(numeric type size);
+    interface Put#(Tuple2#(GrayScale, Vector#(size, GrayScale)))    request;
+    interface Get#(Bool)                                            response;
+endinterface
+
+
+module mkComparator#(parameter Integer size) (FAST_comp#(size));
 
     FIFO #(Tuple2#(GrayScale, Vector#(size, GrayScale))) in_queue <- mkFIFO;
     FIFO #(Bool) out_queue <- mkFIFO;
@@ -18,7 +26,7 @@ module mkComparator#(parameter Integer size) (Server#(Tuple2#(GrayScale, Vector#
         match {.middle, .other} = in_queue.first; in_queue.deq;
 
         for(Integer j = 0; j < size; j = j+1)
-            allGreaterThanMiddle = allGreaterThanMiddle && middle < other[j];
+            allGreaterThanMiddle = allGreaterThanMiddle && (middle + fromInteger(valueOf(THRESHOLD))) < other[j];
 
         out_queue.enq(allGreaterThanMiddle);
     endrule
